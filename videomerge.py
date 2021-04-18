@@ -10,6 +10,25 @@
 #                       #
 #########################
 '''
+This script opens up a video and dynamically creates a merged image with
+the frames of a video. FOr use with the Aqua2 robot at AFRL, but I'm sure it
+could be used for other purposes
+
+Users click on the aqua to identify their starting frame, then
+press space to unpause the video.
+
+As the video plays, it will dynamically merge the current frame with all 
+currently saved frames. At the start, the only saved frame is the starting frame
+
+Once a starting frame is identified, users can press enter to add a frame to the 
+full image. 
+
+Pressing Esc will quit the application
+When you are done, press 'd' to save the image. 
+    Alternatively, let the video end.
+    Saved images will have the same name as the video. 
+
+Full Process:
 
 Step 1) identify your video 
     ex: ~/Downloads/video_to_merge.mp4
@@ -21,19 +40,35 @@ Step 3) Run this script
     ex: ./videomerge ~/Downloads/video_to_merge.mp4
 
 Step 4) Find your starting frame
+    In the video, click on the Aqua. This will make sure it doesn't get erased
+    The video will start paused. Press space to unpause, or pause again.
+    You can also press escape to quit the application
+
+Step 5) Select your merged frames
+    Once you have cicked on the aqua and pressed space to play the video,
+    the application will begin dynamically merging the current frame.
+
+    If you like the location of the aqua, press enter. 
+        This will add it to the base frame
+
+Step 6) Finish
+    If you ware satisfied, press 'd' to save the image, or let the video end
+        The file will be saved in the same location as the video, with the same name,  as a png
+    If you were not satisfied, press 'esc' to quit. 
+
 
 '''
 
 #globals
 
 #play video at X times speed
-speed_mult = 4
+speed_mult = 3
 
 #Used for 
 #may have to play with with
 # (Reccomend ~4-7, but some might need to go as low as 2)
 # (Probably don't go above ~9)
-opening_size = 5 
+opening_size = 2 
 
 from sys import argv
 import os, os.path
@@ -46,7 +81,7 @@ def click_callback(event, x, y, flags, param):
     global mouseX, mouseY
     if event == cv2.EVENT_LBUTTONDOWN:
         mouseX, mouseY = x,y
-        print("CLICK")
+        #print("CLICK")
 
 
 def main():
@@ -93,17 +128,16 @@ def main():
             break
 
         elif k == 32: # space   
-            running != running
+            running = not running
             #print("SPACE")
       
 
         elif mouseX >0 and mouseY >0: #click happened
             #print("CLICK HAPPENED!")
-            running = True
             break   #storing click in mouseX/Y, using current frame as start frame
     
     #end while
-    #print("STARTING MERGE")
+    print("Starting frame found, beginning merge")
 
     startcenter = (int(mouseX), int(mouseY))
     
@@ -146,7 +180,7 @@ def main():
             base_img = composite_img.copy()
 
         elif k == 32: # space   
-            running != running
+            running = not running
             #print("SPACE")
 
         elif k == ord('+'): #increase opening size
